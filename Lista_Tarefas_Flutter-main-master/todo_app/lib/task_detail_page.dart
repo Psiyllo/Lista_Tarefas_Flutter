@@ -184,7 +184,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
-          primary: Colors.blue,
+          backgroundColor: Colors.blue,
         ),
       ),
     );
