@@ -12,6 +12,7 @@ class Task {
   String category;
   DateTime? dueDate;
   bool isFavorite;
+  DateTime? completionTime; // Propriedade para armazenar o tempo de conclusão
 
   Task({
     required this.id,
@@ -21,5 +22,6 @@ class Task {
     required this.category,
     this.dueDate,
     this.isFavorite = false,
+    this.completionTime, // Incluído na inicialização da classe
   });
 }

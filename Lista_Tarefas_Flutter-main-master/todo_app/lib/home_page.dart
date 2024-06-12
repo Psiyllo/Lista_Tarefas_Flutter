@@ -1,10 +1,35 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../task.dart';
-import '../task_provider.dart';
+import 'task.dart';
+import 'task_provider.dart';
 import 'task_detail_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Iniciar um timer para atualizar a tela a cada segundo
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      setState(() {
+        // Atualizar o estado para refletir a mudança de tempo
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancelar o timer quando o widget for descartado
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,70 +106,100 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildTaskCard(BuildContext context, Task task, TaskProvider provider) {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ListTile(
-        title: Text(
-          task.title,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: task.isFavorite ? FontWeight.bold : FontWeight.normal,
-            decoration: task.isDone ? TextDecoration.lineThrough : null,
-            color: task.isDone ? Colors.grey : Colors.black,
+  Widget _buildCompletionTime() {
+    if (task.isDone && task.completionTime != null) {
+      Duration elapsed = DateTime.now().difference(task.completionTime!);
+      return Text(
+        'Concluída há: ${_formatElapsedTime(elapsed)}',
+        style: TextStyle(fontSize: 14, color: Colors.red),
+      );
+    } else {
+      return SizedBox.shrink();
+    }
+  }
+
+  return Card(
+    elevation: 3,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          title: Text(
+            task.title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight:
+                  task.isFavorite ? FontWeight.bold : FontWeight.normal,
+              color: task.isDone ? Colors.grey : Colors.black,
+            ),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Categoria: ${task.category}',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 5),
+              Text(
+                'Prioridade: ${task.priority.toString().split('.').last}',
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          leading: Checkbox(
+            value: task.isDone,
+            onChanged: (bool? newValue) {
+              provider.toggleTaskStatus(task.id);
+            },
+            activeColor: Colors.blue,
+          ),
+          trailing: Wrap(
+            spacing: 10,
+            children: [
+              IconButton(
+                icon: Icon(
+                  task.isFavorite ? Icons.star : Icons.star_border,
+                  color: task.isFavorite ? Colors.amber : Colors.grey,
+                ),
+                onPressed: () {
+                  provider.toggleTaskFavorite(task.id);
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.edit, color: Colors.blue),
+                onPressed: () {
+                  _navigateToTaskDetail(context, task);
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: () {
+                  _showDeleteConfirmationDialog(context, task, provider);
+                },
+              ),
+            ],
           ),
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Categoria: ${task.category}',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 5),
-            Text(
-              'Prioridade: ${task.priority.toString().split('.').last}',
-              style: TextStyle(fontSize: 16),
-            ),
-          ],
-        ),
-        leading: Checkbox(
-          value: task.isDone,
-          onChanged: (bool? newValue) {
-            provider.toggleTaskStatus(task.id);
-          },
-          activeColor: Colors.blue,
-        ),
-        trailing: Wrap(
-          spacing: 10,
-          children: [
-            IconButton(
-              icon: Icon(
-                task.isFavorite ? Icons.star : Icons.star_border,
-                color: task.isFavorite ? Colors.amber : Colors.grey,
-              ),
-              onPressed: () {
-                provider.toggleTaskFavorite(task.id);
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.edit, color: Colors.blue),
-              onPressed: () {
-                _navigateToTaskDetail(context, task);
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                _showDeleteConfirmationDialog(context, task, provider);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+        _buildCompletionTime(), // Chamando o método _buildCompletionTime fora do ListTile
+      ],
+    ),
+  );
+}
+
+  String _formatElapsedTime(Duration duration) {
+    if (duration.inDays > 0) {
+      return '${duration.inDays} dias';
+    } else if (duration.inHours > 0) {
+      return '${duration.inHours} horas';
+    } else if (duration.inMinutes > 0) {
+      return '${duration.inMinutes} minutos';
+    } else {
+      return '${duration.inSeconds} segundos';
+    }
   }
 
   void _navigateToTaskDetail(BuildContext context, Task task) {
@@ -156,7 +211,8 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context, Task task, TaskProvider provider) {
+  void _showDeleteConfirmationDialog(
+      BuildContext context, Task task, TaskProvider provider) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

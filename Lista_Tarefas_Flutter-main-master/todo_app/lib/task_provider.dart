@@ -8,22 +8,6 @@ class TaskProvider with ChangeNotifier {
 
   List<Task> get filteredTasks => _tasks;
 
-  void editTaskPriority(int id, Priority newPriority) {
-    final taskIndex = _tasks.indexWhere((task) => task.id == id);
-    if (taskIndex != -1) {
-      _tasks[taskIndex].priority = newPriority;
-      notifyListeners();
-    }
-  }
-
-  void editTaskDueDate(int id, DateTime? newDueDate) {
-    final taskIndex = _tasks.indexWhere((task) => task.id == id);
-    if (taskIndex != -1) {
-      _tasks[taskIndex].dueDate = newDueDate;
-      notifyListeners();
-    }
-  }
-
   void addTask(String title, String category, DateTime? dueDate,
       Priority priority, bool isFavorite) {
     _tasks.add(Task(
@@ -33,6 +17,7 @@ class TaskProvider with ChangeNotifier {
       dueDate: dueDate,
       priority: priority,
       isFavorite: isFavorite,
+      completionTime: null, // Definindo inicialmente como null
     ));
     notifyListeners();
   }
@@ -56,15 +41,24 @@ class TaskProvider with ChangeNotifier {
   }
 
   void toggleTaskStatus(int id) {
-    final task = _tasks.firstWhere((task) => task.id == id);
-    task.isDone = !task.isDone;
-    notifyListeners();
+    final taskIndex = _tasks.indexWhere((task) => task.id == id);
+    if (taskIndex != -1) {
+      _tasks[taskIndex].isDone = !_tasks[taskIndex].isDone;
+      if (_tasks[taskIndex].isDone) {
+        _tasks[taskIndex].completionTime = DateTime.now(); // Definindo o tempo de conclusão
+      } else {
+        _tasks[taskIndex].completionTime = null; // Resetando o tempo de conclusão
+      }
+      notifyListeners();
+    }
   }
 
   void toggleTaskFavorite(int id) {
-    final task = _tasks.firstWhere((task) => task.id == id);
-    task.isFavorite = !task.isFavorite;
-    notifyListeners();
+    final taskIndex = _tasks.indexWhere((task) => task.id == id);
+    if (taskIndex != -1) {
+      _tasks[taskIndex].isFavorite = !_tasks[taskIndex].isFavorite;
+      notifyListeners();
+    }
   }
 
   void setPriorityFilter(PriorityFilter priorityFilter) {
@@ -89,6 +83,4 @@ class TaskProvider with ChangeNotifier {
     _tasks = filteredTasks;
     notifyListeners();
   }
-
-  void editTaskCategory(int id, String selectedCategory) {}
 }

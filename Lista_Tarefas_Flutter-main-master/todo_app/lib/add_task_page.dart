@@ -1,4 +1,3 @@
-// add_task_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../task.dart';
@@ -27,154 +26,163 @@ class _AddTaskPageState extends State<AddTaskPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Título da Tarefa
-            Text(
-              'Título da Tarefa',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-            SizedBox(height: 8),
-            // Campo de entrada para o título da tarefa
-            TextField(
-              controller: _titleController,
-              style: TextStyle(fontSize: 16),
-              decoration: InputDecoration(
-                hintText: 'Digite o título da tarefa',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: EdgeInsets.all(16),
-              ),
-            ),
+            _buildTextField('Título da Tarefa', 'Digite o título da tarefa', _titleController),
             SizedBox(height: 20),
-            // Categoria
-            Text(
-              'Categoria',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-            SizedBox(height: 8),
-            // Campo de entrada para a categoria da tarefa
-            TextField(
-              controller: _categoryController,
-              style: TextStyle(fontSize: 16),
-              decoration: InputDecoration(
-                hintText: 'Digite a categoria da tarefa',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: EdgeInsets.all(16),
-              ),
-            ),
+            _buildTextField('Categoria', 'Digite a categoria da tarefa', _categoryController),
             SizedBox(height: 20),
-            // Prioridade
-            Text(
-              'Prioridade',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-            SizedBox(height: 8),
-            // Dropdown para selecionar a prioridade
-            DropdownButtonFormField<Priority>(
-              value: _selectedPriority,
-              onChanged: (Priority? value) {
-                setState(() {
-                  _selectedPriority = value!;
-                });
-              },
-              items: Priority.values.map((Priority priority) {
-                return DropdownMenuItem<Priority>(
-                  value: priority,
-                  child: Text(
-                    priority.toString().split('.').last,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                );
-              }).toList(),
-            ),
+            _buildDropdown('Prioridade', _selectedPriority, (Priority? value) {
+              setState(() {
+                _selectedPriority = value!;
+              });
+            }),
             SizedBox(height: 20),
-            // Data de Vencimento
-            Text(
-              'Data de Vencimento',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-            SizedBox(height: 8),
-            // Campo para selecionar a data de vencimento
-            InkWell(
-              onTap: () {
-                _selectDate(context);
-              },
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: EdgeInsets.all(16),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _selectedDate == null
-                          ? 'Selecione uma data'
-                          : _selectedDate!.toString(),
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Icon(Icons.calendar_today, color: Colors.blue),
-                  ],
-                ),
-              ),
-            ),
+            _buildDatePicker(context, 'Data de Vencimento', _selectedDate, () {
+              _selectDate(context);
+            }),
             SizedBox(height: 30),
-            // Botão para adicionar a tarefa
-            ElevatedButton.icon(
-              onPressed: () {
-                Provider.of<TaskProvider>(context, listen: false).addTask(
-                  _titleController.text,
-                  _categoryController.text,
-                  _selectedDate,
-                  _selectedPriority,
-                  false,
-                );
-                Navigator.pop(context);
-              },
-              icon: Icon(Icons.add, size: 24),
-              label: Text(
-                'Adicionar Tarefa',
-                style: TextStyle(fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-            ),
+            _buildElevatedButton(context, 'Adicionar Tarefa', Icons.add, () {
+              Provider.of<TaskProvider>(context, listen: false).addTask(
+                _titleController.text,
+                _categoryController.text,
+                _selectedDate,
+                _selectedPriority,
+                false,
+              );
+              Navigator.pop(context);
+            }),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, String hint, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.blue,
+          ),
+        ),
+        SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          style: TextStyle(fontSize: 16),
+          decoration: InputDecoration(
+            hintText: hint,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Colors.blue),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: EdgeInsets.all(16),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdown(String label, Priority value, ValueChanged<Priority?> onChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.blue,
+          ),
+        ),
+        SizedBox(height: 8),
+        DropdownButtonFormField<Priority>(
+          value: value,
+          onChanged: onChanged,
+          items: Priority.values.map((Priority priority) {
+            return DropdownMenuItem<Priority>(
+              value: priority,
+              child: Text(
+                priority.toString().split('.').last,
+                style: TextStyle(fontSize: 16),
+              ),
+            );
+          }).toList(),
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Colors.blue),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: EdgeInsets.all(16),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDatePicker(BuildContext context, String label, DateTime? date, VoidCallback onTap) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.blue,
+          ),
+        ),
+        SizedBox(height: 8),
+        InkWell(
+          onTap: onTap,
+          child: InputDecorator(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: Colors.blue),
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: EdgeInsets.all(16),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  date == null ? 'Selecione uma data' : date.toString().split(' ')[0],
+                  style: TextStyle(fontSize: 16),
+                ),
+                Icon(Icons.calendar_today, color: Colors.blue),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildElevatedButton(BuildContext context, String text, IconData icon, VoidCallback onPressed) {
+    return Center(
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 24),
+        label: Text(
+          text,
+          style: TextStyle(fontSize: 20),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
         ),
       ),
     );
