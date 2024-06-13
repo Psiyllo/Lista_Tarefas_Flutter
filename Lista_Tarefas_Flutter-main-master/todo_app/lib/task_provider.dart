@@ -6,8 +6,6 @@ class TaskProvider with ChangeNotifier {
 
   List<Task> get tasks => _tasks;
 
-  List<Task> get filteredTasks => _tasks;
-
   void addTask(String title, String category, DateTime? dueDate,
       Priority priority, bool isFavorite) {
     _tasks.add(Task(
@@ -62,25 +60,22 @@ class TaskProvider with ChangeNotifier {
   }
 
   void setPriorityFilter(PriorityFilter priorityFilter) {
-    List<Task> filteredTasks = [];
     switch (priorityFilter) {
       case PriorityFilter.all:
-        filteredTasks = _tasks;
+        // Mostrar todas as tarefas
         break;
       case PriorityFilter.baixa:
-        filteredTasks =
-            _tasks.where((task) => task.priority == Priority.baixa).toList();
+        _tasks = _tasks.where((task) => task.priority == Priority.baixa).toList();
         break;
       case PriorityFilter.media:
-        filteredTasks =
-            _tasks.where((task) => task.priority == Priority.media).toList();
+        _tasks = _tasks.where((task) => task.priority == Priority.media).toList();
         break;
       case PriorityFilter.alta:
-        filteredTasks =
-            _tasks.where((task) => task.priority == Priority.alta).toList();
+        _tasks = _tasks.where((task) => task.priority == Priority.alta).toList();
         break;
+      default:
+        throw Exception("Filtro de prioridade inválido");
     }
-    _tasks = filteredTasks;
     notifyListeners();
   }
 }
